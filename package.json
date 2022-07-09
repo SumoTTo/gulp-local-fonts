@@ -1,0 +1,84 @@
+{
+	"name": "@sumotto/gulp-local-fonts",
+	"version": "0.0.0",
+	"description": "Loads fonts from Google Fonts CSS or locally CSS based on JSON file",
+	"keywords": [
+		"fonts",
+		"gulp",
+		"plugin"
+	],
+	"homepage": "https://github.com/SumoTTo/gulp-local-fonts#readme",
+	"bugs": {
+		"url": "https://github.com/SumoTTo/gulp-local-fonts/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/SumoTTo/gulp-local-fonts.git"
+	},
+	"funding": "https://ko-fi.com/SumoTTo",
+	"license": "MIT",
+	"author": {
+		"name": "Sigalin Kirill",
+		"email": "sumotto@yandex.ru",
+		"url": "https://sumotto.ru"
+	},
+	"scripts": {
+		"lint": "eslint {scripts,src,test}/**/*.[tj]s",
+		"fix": "eslint {scripts,src,test}/**/*.[tj]s --fix",
+		"test": "jest",
+		"build": "unbuild",
+		"minCjs": "terser dist/index.cjs --output=dist/index.cjs --compress --mangle --module",
+		"minMjs": "terser dist/index.mjs --output=dist/index.mjs --compress --mangle --module",
+		"postbuild": "npm run minCjs && npm run minMjs",
+		"prepare": "husky install",
+		"prepublishOnly": "npm run build",
+		"releaseTests": "npm run lint && npm test",
+		"releasePreview": "cross-env HUSKY=0 np --preview --test-script=releaseTests",
+		"release": "cross-env HUSKY=0 np --test-script=releaseTests"
+	},
+	"main": "./dist/index.cjs",
+	"module": "./dist/index.mjs",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"require": "./dist/index.cjs",
+			"import": "./dist/index.mjs",
+			"types": "./dist/index.d.ts"
+		}
+	},
+	"files": [
+		"dist/"
+	],
+	"publishConfig": {
+		"access": "public"
+	},
+	"dependencies": {
+		"find-cache-dir": "^3.3.2",
+		"fontkit": "^2.0.2",
+		"node-fetch": "^2.6.7",
+		"object-hash": "^3.0.0",
+		"plugin-error": "^2.0.0",
+		"through2": "^4.0.2",
+		"vinyl": "^2.2.1"
+	},
+	"peerDependencies": {
+		"gulp": ">4"
+	},
+	"devDependencies": {
+		"@types/find-cache-dir": "^3.2.1",
+		"@types/object-hash": "^2.2.1",
+		"@types/through2": "^2.0.36",
+		"@types/vinyl": "^2.0.6",
+		"@wordpress/eslint-plugin": "^12.6.0",
+		"cross-env": "^7.0.3",
+		"eslint": "^8.19.0",
+		"gulp": "^4.0.2",
+		"husky": "^8.0.1",
+		"jest": "^28.1.2",
+		"np": "^7.6.2",
+		"terser": "^5.14.1",
+		"typescript": "^4.7.4",
+		"unbuild": "^0.7.4"
+	},
+	"type": "module"
+}
