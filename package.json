@@ -1,6 +1,6 @@
 {
 	"name": "@sumotto/gulp-local-fonts",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "Loads fonts from Google Fonts CSS or locally CSS based on JSON file",
 	"keywords": [
 		"fonts",
