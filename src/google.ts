@@ -30,14 +30,19 @@ function getGoogleUrl(
 			formatFonts.push(parts[0]);
 		}
 	});
-
 	urlData.push('family=' + formatFonts.join('|'));
 
-	if (googleOptions.text) {
-		urlData.push('text=' + encodeURIComponent(googleOptions.text));
-	}
 	if (googleOptions.display) {
 		urlData.push('display=' + encodeURIComponent(googleOptions.display));
+	}
+	if (googleOptions.subset) {
+		urlData.push('subset=' + encodeURIComponent(googleOptions.subset));
+	}
+	if (googleOptions.effect) {
+		urlData.push('effect=' + encodeURIComponent(googleOptions.effect));
+	}
+	if (googleOptions.text) {
+		urlData.push('text=' + encodeURIComponent(googleOptions.text));
 	}
 
 	return `${encodeURI(googleOptions.url)}?${urlData.join('&')}`;
@@ -74,11 +79,11 @@ export default async function getGoogle(
 
 	return {
 		googleFiles: fontFiles,
-		googleCss: getCssWithReplacedFontMatches(
+		googleCss: `/*${url}*/\r\n${getCssWithReplacedFontMatches(
 			css,
 			fontUrls,
 			fontPaths,
 			fontNames
-		),
+		)}`,
 	};
 }
