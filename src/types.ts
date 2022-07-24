@@ -4,6 +4,7 @@ export declare type Options = {
 	readonly cache?: boolean;
 	readonly google?: GoogleOptions;
 	readonly cssTransform?: CssTransformFunction;
+	readonly jsTransform?: JsTransformFunction;
 	readonly nodeFetchOptions?: RequestInit;
 };
 
@@ -16,6 +17,10 @@ export declare type GoogleOptions = {
 };
 
 export declare type CssTransformFunction = (css: string) => string;
+export declare type JsTransformFunction = (
+	js: string,
+	allFontNames: string[]
+) => string;
 
 export declare type FontsJson = {
 	readonly google?: Array<string>;

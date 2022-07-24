@@ -1,4 +1,10 @@
-import { CssTransformFunction, FontNames, FontPaths, FontsJson } from './types';
+import {
+	CssTransformFunction,
+	FontNames,
+	FontPaths,
+	FontsJson,
+	JsTransformFunction,
+} from './types';
 import { type Readable } from 'stream';
 import Vinyl from 'vinyl';
 import nodeFetch, {
@@ -179,4 +185,16 @@ export function maybeCssTransform(
 	}
 
 	return css;
+}
+
+export function maybeJsTransform(
+	js: string,
+	allFontNames: string[],
+	jsTransform: JsTransformFunction
+): string {
+	if (jsTransform) {
+		return jsTransform(js, allFontNames);
+	}
+
+	return js;
 }

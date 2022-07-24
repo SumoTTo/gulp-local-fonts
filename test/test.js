@@ -8,6 +8,7 @@ const files = {
 		'Alef-Bold.woff2',
 		'Alef-Regular.woff2',
 		'fonts.css',
+		'fonts.js',
 		'star.eot',
 		'star.svg',
 		'star.ttf',
@@ -19,6 +20,7 @@ const files = {
 	],
 	google: [
 		'fonts.css',
+		'fonts.js',
 		'Lato-Black.woff2',
 		'Lato-Bold.woff2',
 		'Lato-BoldItalic.woff2',
@@ -31,6 +33,7 @@ const files = {
 	],
 	local: [
 		'fonts.css',
+		'fonts.js',
 		'star.eot',
 		'star.svg',
 		'star.ttf',

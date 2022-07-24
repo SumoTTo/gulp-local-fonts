@@ -1,4 +1,4 @@
-import { type GoogleOptions, type Options } from './types';
+import { FontNames, type GoogleOptions, type Options } from './types';
 import { GOOGLE_OPTIONS_DEFAULT, PLUGIN_NAME } from './constants';
 import Vinyl from 'vinyl';
 import {
@@ -67,7 +67,11 @@ async function getGoogleCss(url: string): Promise<string> {
 export default async function getGoogle(
 	fontsData: Array<string>,
 	options: Options
-): Promise<{ googleFiles: Vinyl.BufferFile[]; googleCss: string }> {
+): Promise<{
+	googleFiles: Vinyl.BufferFile[];
+	googleCss: string;
+	fontNames: FontNames;
+}> {
 	const googleOptions = Object.assign(GOOGLE_OPTIONS_DEFAULT, options.google);
 	const url = getGoogleUrl(fontsData, googleOptions);
 	const css = await getGoogleCss(url);
@@ -85,5 +89,6 @@ export default async function getGoogle(
 			fontPaths,
 			fontNames
 		)}`,
+		fontNames,
 	};
 }
