@@ -74,7 +74,7 @@ export default async function init(
 
 		if (options.createdJsFiles) {
 			const fontFaces = css.match(/(?<={)([^}]+)(?=})/gm);
-			if (fontFaces.length) {
+			if (fontFaces && fontFaces.length) {
 				const fontFacesData = {};
 				fontFaces.forEach(function (fontFace) {
 					const fontKey = ['', 400, 'normal'];

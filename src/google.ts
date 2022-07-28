@@ -80,13 +80,15 @@ export default async function getGoogle(
 		fontUrls
 	);
 
+	const googleCss = getCssWithReplacedFontMatches(
+		css,
+		fontUrls,
+		fontPaths,
+		fontNames
+	);
+
 	return {
 		googleFiles: fontFiles,
-		googleCss: `/*${url}*/\r\n${getCssWithReplacedFontMatches(
-			css,
-			fontUrls,
-			fontPaths,
-			fontNames
-		)}`,
+		googleCss: googleCss ? `/*${url}*/\r\n${googleCss}` : '',
 	};
 }
