@@ -1,5 +1,20 @@
 {
+	"env": {
+		"browser": false,
+		"node": true
+	},
 	"extends": [
 		"plugin:@wordpress/eslint-plugin/recommended"
+	],
+	"overrides": [
+		{
+			"files": [
+				"src/js/*.js"
+			],
+			"env": {
+				"browser": true,
+				"node": false
+			}
+		}
 	]
 }
