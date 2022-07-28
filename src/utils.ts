@@ -176,25 +176,40 @@ export function getFontJson(json: string): FontsJson {
 	return JSON.parse(json);
 }
 
-export function maybeCssTransform(
+export async function maybeCssTransform(
 	css: string,
 	cssTransform: CssTransformFunction
-): string {
+): Promise<string> {
 	if (cssTransform) {
-		return cssTransform(css);
+		return cssTransform({ css });
 	}
 
 	return css;
 }
 
-export function maybeJsTransform(
+export async function maybeJsTransform(
 	js: string,
-	allFontNames: string[],
+	fileName: string,
+	css: string,
 	jsTransform: JsTransformFunction
-): string {
+): Promise<string> {
 	if (jsTransform) {
-		return jsTransform(js, allFontNames);
+		return jsTransform({ js, fileName, css });
 	}
 
 	return js;
+}
+
+export function toCamelCase(str) {
+	return (
+		str[0].toLowerCase() +
+		str
+			.slice(1)
+			.toLowerCase()
+			.replace(/[^a-zA-Z0-9]+(.)/g, (m, chr) => chr.toUpperCase())
+	);
+}
+
+export function isNumber(str) {
+	return !isNaN(parseFloat(str)) && !isNaN(str - 0);
 }

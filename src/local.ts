@@ -9,7 +9,6 @@ import {
 } from './utils';
 import PluginError from 'plugin-error';
 import { PLUGIN_NAME } from './constants';
-import { FontNames } from './types';
 
 async function getLocalCss(
 	paths: Array<string>,
@@ -54,7 +53,6 @@ export default async function getLocal(
 ): Promise<{
 	localFiles: Vinyl.BufferFile[];
 	localCss: string;
-	fontNames: FontNames;
 }> {
 	const css = await getLocalCss(fontsData, basePath);
 	const fontUrls = getFontUris(css);
@@ -70,6 +68,5 @@ export default async function getLocal(
 			fontPaths,
 			fontNames
 		),
-		fontNames,
 	};
 }

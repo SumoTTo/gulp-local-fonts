@@ -1,10 +1,14 @@
 import { type FontsJson, type Options } from './types';
 import Vinyl from 'vinyl';
+import { readFileSync } from 'fs';
+import { join } from 'path';
 import {
 	maybeCssTransform,
 	maybeJsTransform,
 	plugin,
 	setFetchInit,
+	toCamelCase,
+	isNumber,
 } from './utils';
 import getGoogle from './google';
 import getLocal from './local';
@@ -17,14 +21,13 @@ export default async function init(
 	basePath: string
 ): Promise<Vinyl.BufferFile[]> {
 	let css = '';
-	const allFontNames = [];
 	const vinylFiles = [];
 
 	setFetchInit(options.nodeFetchOptions);
 	if (typeof json.google !== 'undefined') {
 		if (json.google instanceof Array) {
 			if (json.google.length > 0) {
-				const { googleFiles, googleCss, fontNames } = await getGoogle(
+				const { googleFiles, googleCss } = await getGoogle(
 					json.google,
 					options
 				);
@@ -32,7 +35,6 @@ export default async function init(
 					vinylFiles.push(googleFile);
 				});
 				css += googleCss;
-				allFontNames.push(...Object.values(fontNames));
 			}
 		} else {
 			plugin().emit(
@@ -45,7 +47,7 @@ export default async function init(
 	if (typeof json.local !== 'undefined') {
 		if (json.local instanceof Array) {
 			if (json.local.length > 0) {
-				const { localFiles, localCss, fontNames } = await getLocal(
+				const { localFiles, localCss } = await getLocal(
 					json.local,
 					basePath
 				);
@@ -53,7 +55,6 @@ export default async function init(
 					vinylFiles.push(localFile);
 				});
 				css += localCss;
-				allFontNames.push(...Object.values(fontNames));
 			}
 		} else {
 			plugin().emit(
@@ -64,32 +65,103 @@ export default async function init(
 	}
 
 	if (css) {
+		const transformCss = await maybeCssTransform(css, options.cssTransform);
 		const cssFile = new Vinyl({
 			path: 'fonts.css',
-			contents: Buffer.from(maybeCssTransform(css, options.cssTransform)),
+			contents: Buffer.from(transformCss),
 		});
 		vinylFiles.push(cssFile);
-	}
 
-	if (allFontNames.length) {
-		const js =
-			`const a=document.documentElement.classList;` +
-			`['${allFontNames.sort().join("','")}'].forEach((b)=>{` +
-			`const c=b.toLowerCase().replaceAll(' ','-');` +
-			`if(document.fonts.check('16px '+b)){` +
-			`a.add('done-'+c);` +
-			`}else{` +
-			`document.fonts.load('16px '+b).then(()=>a.add('done-'+c)).catch(()=>a.add('error-'+c));` +
-			`}` +
-			`});`;
+		if (options.createdJsFiles) {
+			const fontFaces = css.match(/(?<={)([^}]+)(?=})/gm);
+			if (fontFaces.length) {
+				const fontFacesData = {};
+				fontFaces.forEach(function (fontFace) {
+					const fontKey = ['', 400, 'normal'];
+					const fontFaceData = ['', '', {}];
+					const fontFaceProperties = fontFace
+						.trim()
+						.split(';')
+						.map(function (property) {
+							return property
+								.split(': ')
+								.map((part) => part.trim());
+						});
 
-		const jsFile = new Vinyl({
-			path: 'fonts.js',
-			contents: Buffer.from(
-				maybeJsTransform(js, allFontNames, options.jsTransform)
-			),
-		});
-		vinylFiles.push(jsFile);
+					fontFaceProperties.forEach(function ([
+						propertyName,
+						rawPropertyValue,
+					]) {
+						if (propertyName && rawPropertyValue) {
+							const propertyValue = isNumber(rawPropertyValue)
+								? parseFloat(rawPropertyValue)
+								: rawPropertyValue.replace(/^'+|'+$/g, '');
+
+							if ('font-family' === propertyName) {
+								fontFaceData[0] = propertyValue;
+
+								fontKey[0] = propertyValue
+									.toString()
+									.toLowerCase()
+									.replace(/\s+/g, '-');
+							} else if ('src' === propertyName) {
+								fontFaceData[1] = propertyValue;
+							} else {
+								if ('font-weight' === propertyName) {
+									fontKey[1] = parseInt(
+										propertyValue.toString()
+									);
+								} else if ('font-style' === propertyName) {
+									fontKey[2] = propertyValue;
+								}
+
+								fontFaceData[2][
+									toCamelCase(
+										propertyName.replace(/^font-/, '')
+									)
+								] = propertyValue;
+							}
+						}
+					});
+
+					fontFacesData[fontKey.join('-')] = fontFaceData;
+				});
+
+				const jsFileNames = [
+					'fonts.js',
+					'fonts-classes.js',
+					'fonts-get-format-from-font-data.js',
+					'fonts-get-key-from-font-face.js',
+					'fonts-get-src-from-font-data.js',
+					'fonts-load.js',
+					'fonts-preloader-main.js',
+					'fonts-preloader-worker.js',
+				];
+
+				for (const jsFileName of jsFileNames) {
+					let js = readFileSync(
+						join(__dirname, 'js', jsFileName)
+					).toString();
+
+					if ('fonts.js' === jsFileName) {
+						js = js.replace('{}', JSON.stringify(fontFacesData));
+					}
+
+					const jsFile = new Vinyl({
+						path: jsFileName,
+						contents: Buffer.from(
+							await maybeJsTransform(
+								js,
+								jsFileName,
+								css,
+								options.jsTransform
+							)
+						),
+					});
+					vinylFiles.push(jsFile);
+				}
+			}
+		}
 	}
 
 	return vinylFiles;
