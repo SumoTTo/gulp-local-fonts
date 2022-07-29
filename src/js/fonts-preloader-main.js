@@ -4,8 +4,8 @@ import fontsGetSrcFromFontData from './fonts-get-src-from-font-data.js';
 import fontsGetFormatFromFontData from './fonts-get-format-from-font-data.js';
 
 const __dirname = new URL('.', import.meta.url).pathname;
-const fetchUrl = document.querySelector('[data-fonts-preloader-feth-url]')
-	?.dataset?.fontsPreloaderFethUrl;
+const fetchUrl = document.querySelector('[data-fonts-preloader-fetch-url]')
+	?.dataset?.fontsPreloaderFetchUrl;
 
 if (fetchUrl) {
 	const worker = new Worker(__dirname + 'fonts-preloader-worker.js');
