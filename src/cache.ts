@@ -43,10 +43,7 @@ function setCache(cacheKey: string, vinylFile: Vinyl.BufferFile): void {
 		mkdirSync(cacheDir, { recursive: true });
 	}
 
-	writeFileSync(
-		resolve(cacheDir, vinylFile.basename),
-		vinylFile.contents.toString()
-	);
+	writeFileSync(resolve(cacheDir, vinylFile.basename), vinylFile.contents);
 }
 
 function delCache(): void {
