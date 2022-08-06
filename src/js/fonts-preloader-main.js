@@ -9,11 +9,15 @@ const fetchUrl = document.querySelector('[data-fonts-preloader-fetch-url]')
 
 if (fetchUrl) {
 	const worker = new Worker(__dirname + 'fonts-preloader-worker.js');
-	document.fonts.ready.then((fontFaces) => {
+	document.fonts.ready.then(() => {
 		const preloadData = [];
-		const loadedFontFaces = [...fontFaces.values()].filter(
-			(fontFace) => 'loaded' === fontFace.status
-		);
+		const loadedFontFaces = [];
+
+		document.fonts.forEach((fontFace) => {
+			if ('loaded' === fontFace.status) {
+				loadedFontFaces.push(fontFace);
+			}
+		});
 
 		loadedFontFaces.forEach((fontFace) => {
 			const fontKey = fontsGetKeyFromFontFace(fontFace);

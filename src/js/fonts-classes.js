@@ -12,14 +12,17 @@ function addClasses(fontFaces, status) {
 	});
 }
 
-document.fonts.ready.then((FontFaceSet) => {
-	const allFontFaces = [...FontFaceSet.values()];
-	const loadedFontFaces = allFontFaces.filter(
-		(fontFace) => 'loaded' === fontFace.status
-	);
-	const errorFontFaces = allFontFaces.filter(
-		(fontFace) => 'error' === fontFace.status
-	);
+document.fonts.ready.then(() => {
+	const loadedFontFaces = [];
+	const errorFontFaces = [];
+
+	document.fonts.forEach((fontFace) => {
+		if ('loaded' === fontFace.status) {
+			loadedFontFaces.push(fontFace);
+		} else if ('error' === fontFace.status) {
+			errorFontFaces.push(fontFace);
+		}
+	});
 
 	addClasses(loadedFontFaces, 'done');
 	addClasses(errorFontFaces, 'error');
