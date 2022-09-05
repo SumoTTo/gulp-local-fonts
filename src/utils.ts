@@ -1,6 +1,7 @@
 import {
 	CssTransformFunction,
-	FontNames,
+	FontFamilyNames,
+	FontFullNames,
 	FontPaths,
 	FontsJson,
 	JsTransformFunction,
@@ -16,7 +17,7 @@ import { create as getFontData } from 'fontkit';
 import { basename, extname } from 'path';
 import { readFileSync } from 'fs';
 import PluginError from 'plugin-error';
-import { PLUGIN_NAME } from './constants';
+import { PLUGIN_NAME, WEIGHTS } from './constants';
 
 let fetchInit: RequestInit;
 let pluginSelf: Readable;
@@ -53,24 +54,25 @@ export function getCssWithReplacedFontMatches(
 	css: string,
 	fontUrls: Array<string>,
 	fontPaths: FontPaths,
-	fontNames: FontNames
+	fontFamilyNames: FontFamilyNames,
+	fontFullNames: FontFullNames
 ): string {
 	const matches = css.matchAll(/@font-face\s+{[^}]+}/g);
 	return Array.from(matches, (m) => m[0])
-		.map((fontMatch) => {
-			fontUrls.forEach(function (fontUrl) {
+		.map((fontMatch: string) => {
+			fontUrls.forEach(function (fontUrl: string) {
 				const fontPath = fontPaths[fontUrl];
-				const fontName = fontNames[fontUrl];
+				const fontFamilyName = fontFamilyNames[fontUrl];
+				const fontFullName = fontFullNames[fontUrl];
 				const fontRegExp = new RegExp(escapeRegExp(fontUrl), 'g');
 
 				if (fontRegExp.test(fontMatch)) {
 					fontMatch = fontMatch.replace(fontRegExp, fontPath);
-					if (!/local\(/.test(fontMatch)) {
-						fontMatch = fontMatch.replace(
-							/src:\s+url/g,
-							`src: local('${fontName}'), url`
-						);
-					}
+					fontMatch = setLocalRulesInFontMatch(
+						fontMatch,
+						fontFamilyName,
+						fontFullName
+					);
 				}
 			});
 
@@ -90,11 +92,13 @@ export function getFontUris(css: string): Array<string> {
 async function getFontFileData(uri: string): Promise<{
 	fontFile: Vinyl.BufferFile;
 	fontFilePath: string;
+	fontFamilyName: string;
 	fontFullName: string;
 }> {
 	let buffer: Buffer;
 	let fontFileExt: string;
 	let fontPostscriptName: string;
+	let fontFamilyName: string;
 	let fontFullName: string;
 	const isUrl = /^https?:\/\//.test(uri);
 
@@ -118,14 +122,22 @@ async function getFontFileData(uri: string): Promise<{
 
 	try {
 		const fontData = await getFontData(buffer);
+
 		fontFileExt = `.${fontData.type.toLowerCase()}`;
-		fontPostscriptName =
-			fontData.postscriptName || basename(uri, fontFileExt);
-		fontFullName = fontData.fullName || basename(uri, fontFileExt);
+
+		const failBack = basename(uri, fontFileExt);
+
+		fontPostscriptName = fontData.postscriptName || failBack;
+		fontFamilyName = fontData.familyName || failBack;
+		fontFullName = fontData.fullName || failBack;
 	} catch (error) {
 		fontFileExt = extname(uri);
-		fontPostscriptName = basename(uri, fontFileExt);
-		fontFullName = basename(uri, fontFileExt);
+
+		const failBack = basename(uri, fontFileExt);
+
+		fontPostscriptName = failBack;
+		fontFamilyName = failBack;
+		fontFullName = failBack;
 	}
 
 	const fontFileName = fontPostscriptName
@@ -141,33 +153,38 @@ async function getFontFileData(uri: string): Promise<{
 	return {
 		fontFile,
 		fontFilePath,
+		fontFamilyName,
 		fontFullName,
 	};
 }
 
 export async function getFontFilesData(fontUris: Array<string>): Promise<{
 	fontFiles: Vinyl.BufferFile[];
-	fontNames: FontNames;
+	fontFamilyNames: FontFamilyNames;
+	fontFullNames: FontFullNames;
 	fontPaths: FontPaths;
 }> {
 	const fontFiles = [];
-	const fontNames = {};
+	const fontFamilyNames = {};
+	const fontFullNames = {};
 	const fontPaths = {};
 
 	await Promise.all(
 		fontUris.filter(arrayUnique).map(async (fontUri) => {
-			const { fontFile, fontFilePath, fontFullName } =
+			const { fontFile, fontFilePath, fontFamilyName, fontFullName } =
 				await getFontFileData(fontUri);
 
 			fontFiles.push(fontFile);
 			fontPaths[fontUri] = fontFilePath;
-			fontNames[fontUri] = fontFullName;
+			fontFamilyNames[fontUri] = fontFamilyName;
+			fontFullNames[fontUri] = fontFullName;
 		})
 	);
 
 	return {
 		fontFiles,
-		fontNames,
+		fontFamilyNames,
+		fontFullNames,
 		fontPaths,
 	};
 }
@@ -200,7 +217,7 @@ export async function maybeJsTransform(
 	return js;
 }
 
-export function toCamelCase(str) {
+export function toCamelCase(str: string): string {
 	return (
 		str[0].toLowerCase() +
 		str
@@ -210,6 +227,181 @@ export function toCamelCase(str) {
 	);
 }
 
-export function isNumber(str) {
+export function isNumber(str): boolean {
 	return !isNaN(parseFloat(str)) && !isNaN(str - 0);
+}
+
+export function getLocalSrc(
+	fontFamilyName: string,
+	italic: string,
+	weightName: string = ''
+): string {
+	return `local('${fontFamilyName} ${weightName} ${italic}')`
+		.replace(/ +'/, "'")
+		.replace(/ +/g, ' ');
+}
+
+export function setLocalRulesInArray(
+	fontFamilyName: string,
+	italic: string,
+	weightName: string,
+	local: Array<string>
+): void {
+	const localSrc = getLocalSrc(fontFamilyName, italic, weightName);
+
+	local.push(localSrc);
+	if (localSrc.includes(' ')) {
+		local.push(localSrc.replace(/ +/g, '-'));
+	}
+
+	if (fontFamilyName.includes(' ')) {
+		const localSrcFontFamilyNameCamelCase = getLocalSrc(
+			fontFamilyName.replace(/ +/g, ''),
+			italic,
+			weightName
+		);
+
+		local.push(localSrcFontFamilyNameCamelCase);
+		if (localSrcFontFamilyNameCamelCase.includes(' ')) {
+			local.push(localSrcFontFamilyNameCamelCase.replace(/ +/g, '-'));
+		}
+	}
+
+	if (weightName.includes(' ')) {
+		const localSrcWeightNameCamelCase = getLocalSrc(
+			fontFamilyName,
+			italic,
+			weightName.replace(/ +/g, '')
+		);
+
+		local.push(localSrcWeightNameCamelCase);
+		if (localSrcWeightNameCamelCase.includes(' ')) {
+			local.push(localSrcWeightNameCamelCase.replace(/ +/g, '-'));
+		}
+	}
+
+	if (fontFamilyName.includes(' ') && weightName.includes(' ')) {
+		const localSrcFullCamelCase = getLocalSrc(
+			fontFamilyName.replace(/ +/g, ''),
+			italic,
+			weightName.replace(/ +/g, '')
+		);
+
+		local.push(localSrcFullCamelCase);
+		if (localSrcFullCamelCase.includes(' ')) {
+			local.push(localSrcFullCamelCase.replace(/ +/g, '-'));
+		}
+	}
+
+	if (italic) {
+		const localSrcWeightNameAndVariation = getLocalSrc(
+			fontFamilyName,
+			weightName.replace(/ +/g, '') + italic
+		);
+
+		local.push(localSrcWeightNameAndVariation);
+		if (localSrcWeightNameAndVariation.includes(' ')) {
+			local.push(localSrcWeightNameAndVariation.replace(/ +/g, '-'));
+		}
+
+		if (fontFamilyName.includes(' ')) {
+			const localSrcFontFamilyNameCamelCaseAndWeightNameAndVariation =
+				getLocalSrc(
+					fontFamilyName.replace(/ +/g, ''),
+					weightName.replace(/ +/g, '') + italic
+				);
+
+			local.push(
+				localSrcFontFamilyNameCamelCaseAndWeightNameAndVariation
+			);
+			if (
+				localSrcFontFamilyNameCamelCaseAndWeightNameAndVariation.includes(
+					' '
+				)
+			) {
+				local.push(
+					localSrcFontFamilyNameCamelCaseAndWeightNameAndVariation.replace(
+						/ +/g,
+						'-'
+					)
+				);
+			}
+		}
+	}
+}
+
+export function getWeightNameFromFontFamilyName(
+	fontFamilyName: string,
+	weight: number
+): string {
+	for (const weightName of WEIGHTS[weight]) {
+		const regex = new RegExp(weightName, 'i');
+		if (weightName && regex.test(fontFamilyName)) {
+			return weightName;
+		}
+
+		const weightNameCamelCase = weightName.replace(/ +/g, '-');
+		const regexCamelCase = new RegExp(weightNameCamelCase, 'i');
+		if (regexCamelCase.test(fontFamilyName)) {
+			return weightNameCamelCase;
+		}
+	}
+
+	return '';
+}
+
+export function setLocalRulesInFontMatch(
+	fontMatch: string,
+	fontFamilyName: string,
+	fontFullName: string
+): string {
+	if (!/local\(/.test(fontMatch)) {
+		const weightMatches = /font-weight: (\d+);/.exec(fontMatch);
+		const weight = parseInt((weightMatches && weightMatches[1]) || '0', 10);
+
+		if (WEIGHTS[weight]) {
+			const italic = /font-style:\s*italic;/.test(fontMatch)
+				? 'Italic'
+				: '';
+
+			const local = [];
+			const foundWeightName = getWeightNameFromFontFamilyName(
+				fontFamilyName,
+				weight
+			);
+
+			if (foundWeightName) {
+				const fontFamilyNameWithoutWeightName = fontFamilyName
+					.replace(foundWeightName, '')
+					.replace(/^\s+|\s+$/g, '');
+				setLocalRulesInArray(
+					fontFamilyNameWithoutWeightName,
+					italic,
+					foundWeightName,
+					local
+				);
+			} else {
+				for (const weightName of WEIGHTS[weight]) {
+					setLocalRulesInArray(
+						fontFamilyName,
+						italic,
+						weightName,
+						local
+					);
+				}
+			}
+
+			fontMatch = fontMatch.replace(
+				/src:\s+url/g,
+				`src: ${local.join(', ')}, url`
+			);
+		} else {
+			fontMatch = fontMatch.replace(
+				/src:\s+url/g,
+				`src: local('${fontFullName}'), url`
+			);
+		}
+	}
+
+	return fontMatch;
 }

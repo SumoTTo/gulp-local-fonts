@@ -56,9 +56,8 @@ export default async function getLocal(
 }> {
 	const css = await getLocalCss(fontsData, basePath);
 	const fontUrls = getFontUris(css);
-	const { fontFiles, fontPaths, fontNames } = await getFontFilesData(
-		fontUrls
-	);
+	const { fontFiles, fontPaths, fontFamilyNames, fontFullNames } =
+		await getFontFilesData(fontUrls);
 
 	return {
 		localFiles: fontFiles,
@@ -66,7 +65,8 @@ export default async function getLocal(
 			css,
 			fontUrls,
 			fontPaths,
-			fontNames
+			fontFamilyNames,
+			fontFullNames
 		),
 	};
 }

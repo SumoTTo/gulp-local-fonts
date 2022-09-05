@@ -76,15 +76,15 @@ export default async function getGoogle(
 	const css = await getGoogleCss(url);
 	const fontUrls = getFontUris(css);
 
-	const { fontFiles, fontPaths, fontNames } = await getFontFilesData(
-		fontUrls
-	);
+	const { fontFiles, fontPaths, fontFamilyNames, fontFullNames } =
+		await getFontFilesData(fontUrls);
 
 	const googleCss = getCssWithReplacedFontMatches(
 		css,
 		fontUrls,
 		fontPaths,
-		fontNames
+		fontFamilyNames,
+		fontFullNames
 	);
 
 	return {

@@ -40,7 +40,11 @@ export declare type FontsJson = {
 	readonly local?: Array<string>;
 };
 
-export declare type FontNames = {
+export declare type FontFamilyNames = {
+	[key: string]: string;
+};
+
+export declare type FontFullNames = {
 	[key: string]: string;
 };
 
