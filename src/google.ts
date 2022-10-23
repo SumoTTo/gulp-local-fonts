@@ -2,12 +2,12 @@ import { type GoogleOptions, type Options } from './types';
 import { GOOGLE_OPTIONS_DEFAULT, PLUGIN_NAME } from './constants';
 import Vinyl from 'vinyl';
 import {
-	fetch,
 	getCssWithReplacedFontMatches,
 	getFontFilesData,
 	getFontUris,
 	plugin,
 } from './utils';
+import { fetch } from './fetch';
 import PluginError from 'plugin-error';
 
 function getGoogleUrl(

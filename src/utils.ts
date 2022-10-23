@@ -8,16 +8,12 @@ import {
 } from './types';
 import { type Readable } from 'stream';
 import Vinyl from 'vinyl';
-import nodeFetch, {
-	type RequestInfo,
-	type RequestInit,
-	Response,
-} from 'node-fetch';
+import { type RequestInit } from 'node-fetch';
 import { create as getFontData } from 'fontkit';
 import { basename, extname } from 'path';
-import { readFileSync } from 'fs';
 import PluginError from 'plugin-error';
 import { PLUGIN_NAME, WEIGHTS } from './constants';
+import { fetch } from './fetch';
 
 let fetchInit: RequestInit;
 let pluginSelf: Readable;
@@ -38,8 +34,8 @@ export function setFetchInit(customFetchInit: RequestInit) {
 	fetchInit = customFetchInit;
 }
 
-export function fetch(url: RequestInfo): Promise<Response> {
-	return nodeFetch(url, fetchInit);
+export function getFetchInit(): RequestInit {
+	return fetchInit;
 }
 
 export function setPlugin(self: Readable) {
@@ -57,7 +53,7 @@ export function getCssWithReplacedFontMatches(
 	fontFamilyNames: FontFamilyNames,
 	fontFullNames: FontFullNames
 ): string {
-	const matches = css.matchAll(/@font-face\s+{[^}]+}/g);
+	const matches = css.matchAll(/@font-face\s*{[^}]+}/g);
 	return Array.from(matches, (m) => m[0])
 		.map((fontMatch: string) => {
 			fontUrls.forEach(function (fontUrl: string) {
@@ -95,30 +91,25 @@ async function getFontFileData(uri: string): Promise<{
 	fontFamilyName: string;
 	fontFullName: string;
 }> {
-	let buffer: Buffer;
 	let fontFileExt: string;
 	let fontPostscriptName: string;
 	let fontFamilyName: string;
 	let fontFullName: string;
 	const isUrl = /^https?:\/\//.test(uri);
 
-	if (isUrl) {
-		const response = await fetch(uri);
+	const response = await fetch(isUrl ? uri : 'file:///' + uri);
 
-		if (!response.ok) {
-			plugin().emit(
-				'error',
-				new PluginError(
-					PLUGIN_NAME,
-					`Failed to load font from ${uri}. Status text: ${response.statusText}.`
-				)
-			);
-		}
-
-		buffer = Buffer.from(await response.arrayBuffer());
-	} else {
-		buffer = Buffer.from(readFileSync(uri, 'utf-8'));
+	if (!response.ok) {
+		plugin().emit(
+			'error',
+			new PluginError(
+				PLUGIN_NAME,
+				`Failed to load font from ${uri}. Status text: ${response.statusText}.`
+			)
+		);
 	}
+
+	const buffer = Buffer.from(await response.arrayBuffer());
 
 	try {
 		const fontData = await getFontData(buffer);
@@ -140,9 +131,15 @@ async function getFontFileData(uri: string): Promise<{
 		fontFullName = failBack;
 	}
 
-	const fontFileName = fontPostscriptName
-		.replace(/[\s_-]+/g, '-')
-		.replace(/[^a-zA-Z0-9-]/g, '');
+	let fontFileName;
+	if (isUrl) {
+		fontFileName = fontPostscriptName
+			.replace(/[\s_-]+/g, '-')
+			.replace(/[^a-zA-Z0-9-]/g, '');
+	} else {
+		fontFileName = basename(uri, fontFileExt);
+	}
+
 	const fontFilePath = `${fontFileName}${fontFileExt}`;
 
 	const fontFile = new Vinyl({
