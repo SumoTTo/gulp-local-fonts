@@ -5,6 +5,7 @@ node_modules/
 .idea
 .vscode
 .husky/_/
+.local/
 
 *.log
 *.tgz
