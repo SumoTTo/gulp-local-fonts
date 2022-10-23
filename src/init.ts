@@ -54,6 +54,7 @@ export default async function init(
 				localFiles.forEach((localFile) => {
 					vinylFiles.push(localFile);
 				});
+
 				css += localCss;
 			}
 		} else {
@@ -74,6 +75,7 @@ export default async function init(
 
 		if (options.createdJsFiles) {
 			const fontFaces = css.match(/(?<={)([^}]+)(?=})/gm);
+
 			if (fontFaces && fontFaces.length) {
 				const fontFacesData = {};
 				fontFaces.forEach(function (fontFace) {
@@ -84,7 +86,7 @@ export default async function init(
 						.split(';')
 						.map(function (property) {
 							return property
-								.split(': ')
+								.split(':')
 								.map((part) => part.trim());
 						});
 
@@ -95,7 +97,10 @@ export default async function init(
 						if (propertyName && rawPropertyValue) {
 							const propertyValue = isNumber(rawPropertyValue)
 								? parseFloat(rawPropertyValue)
-								: rawPropertyValue.replace(/^'+|'+$/g, '');
+								: rawPropertyValue.replace(
+										/^['"]+|['"]+$/g,
+										''
+								  );
 
 							if ('font-family' === propertyName) {
 								fontFaceData[0] = propertyValue;
@@ -105,7 +110,9 @@ export default async function init(
 									.toLowerCase()
 									.replace(/\s+/g, '-');
 							} else if ('src' === propertyName) {
-								fontFaceData[1] = propertyValue;
+								fontFaceData[1] = propertyValue
+									.toString()
+									.replace(/,\s*url/g, ', url');
 							} else {
 								if ('font-weight' === propertyName) {
 									fontKey[1] = parseInt(
