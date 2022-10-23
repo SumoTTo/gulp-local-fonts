@@ -73,7 +73,7 @@
 		"@wordpress/eslint-plugin": "^12.6.0",
 		"cross-env": "^7.0.3",
 		"csso": "^5.0.4",
-		"eslint": "^8.19.0",
+		"eslint": "8.22.0",
 		"fs-extra": "^10.1.0",
 		"gulp": "^4.0.2",
 		"husky": "^8.0.1",
