@@ -19,7 +19,7 @@ export default function gulpLocalFonts(optionsGulpLocalFonts: Options = {}) {
 			callback: TransformCallback
 		) {
 			setPlugin(this);
-			if (!file.isNull()) {
+			if (!file.isNull() && '.json' === file.extname) {
 				if (file.isStream()) {
 					plugin().emit(
 						'error',
@@ -33,6 +33,8 @@ export default function gulpLocalFonts(optionsGulpLocalFonts: Options = {}) {
 
 					vinylFiles.forEach((vinylFile) => this.push(vinylFile));
 				}
+			} else {
+				this.push(file);
 			}
 
 			return callback(null, null);
