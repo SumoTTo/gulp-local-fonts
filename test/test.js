@@ -180,7 +180,10 @@ describe('gulp-local-fonts', function () {
 				const distPathTest = join(distPath, 'all');
 
 				return gulp
-					.src(getFixtures('fonts-all.json'))
+					.src([
+						getFixtures('fonts-all.json'),
+						getFixtures('test.html'),
+					])
 					.pipe(localFonts({ cache: false }))
 					.pipe(gulp.dest(distPathTest))
 					.on('end', function () {
