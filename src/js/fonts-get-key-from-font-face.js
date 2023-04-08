@@ -1,6 +1,6 @@
-export default function fontsGetKeyFromFontFace(fontFace) {
+export default function fontsGetKeyFromFontFace( fontFace ) {
 	return (
-		fontFace.family.toLowerCase().replaceAll(' ', '-') +
+		fontFace.family.toLowerCase().replace( / /g, '-' ) +
 		'-' +
 		fontFace.weight +
 		'-' +
