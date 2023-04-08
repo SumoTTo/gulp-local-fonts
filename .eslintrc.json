@@ -15,6 +15,16 @@
 				"browser": true,
 				"node": false
 			}
+		},
+		{
+			"files": [
+				"test/test.js"
+			],
+			"env": {
+				"browser": false,
+				"node": true,
+				"jest": true
+			}
 		}
 	]
 }
