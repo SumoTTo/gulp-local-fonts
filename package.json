@@ -23,9 +23,9 @@
 		"url": "https://sumotto.ru"
 	},
 	"scripts": {
-		"lint": "eslint {scripts,src,test}/**/*.[tj]s",
-		"fix": "eslint {scripts,src,test}/**/*.[tj]s --fix",
-		"test": "jest",
+		"lint": "eslint {scripts,src,test}/**/*.{mjs,ts,js}",
+		"fix": "eslint {scripts,src,test}/**/*.{mjs,ts,js} --fix",
+		"test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
 		"build": "unbuild",
 		"minCjs": "terser dist/index.cjs --output=dist/index.cjs --compress --mangle --module",
 		"minMjs": "terser dist/index.mjs --output=dist/index.mjs --compress --mangle --module",

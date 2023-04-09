@@ -1,7 +1,7 @@
 import { type FontsJson, type Options } from './types';
 import Vinyl from 'vinyl';
 import { readFileSync } from 'fs';
-import { join } from 'path';
+import { join, dirname } from 'path';
 import {
 	maybeCssTransform,
 	maybeJsTransform,
@@ -14,6 +14,12 @@ import getGoogle from './google';
 import getLocal from './local';
 import PluginError from 'plugin-error';
 import { PLUGIN_NAME } from './constants';
+import { fileURLToPath } from 'url';
+
+if (typeof __dirname === 'undefined') {
+	// noinspection ES6ConvertVarToLetConst
+	var __dirname = dirname(fileURLToPath(import.meta.url)); // eslint-disable-line no-var
+}
 
 export default async function init(
 	json: FontsJson,
