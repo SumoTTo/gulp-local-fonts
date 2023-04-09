@@ -154,53 +154,53 @@ exports[`gulp-local-fonts all should create files from Google and from local CSS
 "import fontsData from './fonts.js';
 import fontsGetKeyFromFontFace from './fonts-get-key-from-font-face.js';
 
-function addClasses( fontFaces, status ) {
-	fontFaces.forEach( ( fontFace ) => {
-		const fontKey = fontsGetKeyFromFontFace( fontFace );
-		if ( fontsData[ fontKey ] ) {
+function addClasses(fontFaces, status) {
+	fontFaces.forEach((fontFace) => {
+		const fontKey = fontsGetKeyFromFontFace(fontFace);
+		if (fontsData[fontKey]) {
 			document.documentElement.classList.add(
 				'font-' + fontKey + '-' + status
 			);
 		}
-	} );
+	});
 }
 
-document.fonts.ready.then( () => {
+document.fonts.ready.then(() => {
 	const loadedFontFaces = [];
 	const errorFontFaces = [];
 
-	document.fonts.forEach( ( fontFace ) => {
-		if ( 'loaded' === fontFace.status ) {
-			loadedFontFaces.push( fontFace );
-		} else if ( 'error' === fontFace.status ) {
-			errorFontFaces.push( fontFace );
+	document.fonts.forEach((fontFace) => {
+		if ('loaded' === fontFace.status) {
+			loadedFontFaces.push(fontFace);
+		} else if ('error' === fontFace.status) {
+			errorFontFaces.push(fontFace);
 		}
-	} );
+	});
 
-	addClasses( loadedFontFaces, 'done' );
-	addClasses( errorFontFaces, 'error' );
+	addClasses(loadedFontFaces, 'done');
+	addClasses(errorFontFaces, 'error');
 
-	document.fonts.addEventListener( 'loadingdone', ( event ) =>
-		addClasses( event.fontfaces, 'done' )
+	document.fonts.addEventListener('loadingdone', (event) =>
+		addClasses(event.fontfaces, 'done')
 	);
-	document.fonts.addEventListener( 'loadingerror', ( event ) =>
-		addClasses( event.fontfaces, 'error' )
+	document.fonts.addEventListener('loadingerror', (event) =>
+		addClasses(event.fontfaces, 'error')
 	);
-} );
+});
 "
 `;
 
 exports[`gulp-local-fonts all should create files from Google and from local CSS, while combining them into one CSS 4`] = `
-"export default function fontsGetFormatFromFontData( fontData ) {
-	return fontData[ 1 ].match( /(?<=format\\(['"])[^'"]+(?=['"]\\))/ )[ 0 ];
+"export default function fontsGetFormatFromFontData(fontData) {
+	return fontData[1].match(/(?<=format\\(['"])[^'"]+(?=['"]\\))/)[0];
 }
 "
 `;
 
 exports[`gulp-local-fonts all should create files from Google and from local CSS, while combining them into one CSS 5`] = `
-"export default function fontsGetKeyFromFontFace( fontFace ) {
+"export default function fontsGetKeyFromFontFace(fontFace) {
 	return (
-		fontFace.family.toLowerCase().replaceAll( ' ', '-' ) +
+		fontFace.family.toLowerCase().replace(/ /g, '-') +
 		'-' +
 		fontFace.weight +
 		'-' +
@@ -211,8 +211,8 @@ exports[`gulp-local-fonts all should create files from Google and from local CSS
 `;
 
 exports[`gulp-local-fonts all should create files from Google and from local CSS, while combining them into one CSS 6`] = `
-"export default function fontsGetSrcFromFontData( fontData ) {
-	return fontData[ 1 ].match( /(?<=url\\()[^)]+(?=\\))/ )[ 0 ];
+"export default function fontsGetSrcFromFontData(fontData) {
+	return fontData[1].match(/(?<=url\\()[^)]+(?=\\))/)[0];
 }
 "
 `;
@@ -220,15 +220,15 @@ exports[`gulp-local-fonts all should create files from Google and from local CSS
 exports[`gulp-local-fonts all should create files from Google and from local CSS, while combining them into one CSS 7`] = `
 "import fontsData from './fonts.js';
 
-const __dirname = new URL( '.', import.meta.url ).pathname;
+const __dirname = new URL('.', import.meta.url).pathname;
 
-for ( const fontKey in fontsData ) {
-	const fontData = fontsData[ fontKey ];
+for (const fontKey in fontsData) {
+	const fontData = fontsData[fontKey];
 	document.fonts.add(
 		new FontFace(
-			fontData[ 0 ],
-			fontData[ 1 ].replaceAll( 'url(', 'url(' + __dirname ),
-			fontData[ 2 ]
+			fontData[0],
+			fontData[1].replace(/url\\(/g, 'url(' + __dirname),
+			fontData[2]
 		)
 	);
 }
@@ -241,51 +241,51 @@ import fontsGetKeyFromFontFace from './fonts-get-key-from-font-face.js';
 import fontsGetSrcFromFontData from './fonts-get-src-from-font-data.js';
 import fontsGetFormatFromFontData from './fonts-get-format-from-font-data.js';
 
-const __dirname = new URL( '.', import.meta.url ).pathname;
-const fetchUrl = document.querySelector( '[data-fonts-preloader-fetch-url]' )
+const __dirname = new URL('.', import.meta.url).pathname;
+const fetchUrl = document.querySelector('[data-fonts-preloader-fetch-url]')
 	?.dataset?.fontsPreloaderFetchUrl;
 
-if ( fetchUrl ) {
-	const worker = new Worker( __dirname + 'fonts-preloader-worker.js' );
-	document.fonts.ready.then( () => {
+if (fetchUrl) {
+	const worker = new Worker(__dirname + 'fonts-preloader-worker.js');
+	document.fonts.ready.then(() => {
 		const preloadData = [];
 		const loadedFontFaces = [];
 
-		document.fonts.forEach( ( fontFace ) => {
-			if ( 'loaded' === fontFace.status ) {
-				loadedFontFaces.push( fontFace );
+		document.fonts.forEach((fontFace) => {
+			if ('loaded' === fontFace.status) {
+				loadedFontFaces.push(fontFace);
 			}
-		} );
+		});
 
-		loadedFontFaces.forEach( ( fontFace ) => {
-			const fontKey = fontsGetKeyFromFontFace( fontFace );
-			if ( fontsData[ fontKey ] ) {
-				const fontData = fontsData[ fontKey ];
-				preloadData.push( {
-					src: fontsGetSrcFromFontData( fontData ),
-					type: fontsGetFormatFromFontData( fontData ),
-				} );
+		loadedFontFaces.forEach((fontFace) => {
+			const fontKey = fontsGetKeyFromFontFace(fontFace);
+			if (fontsData[fontKey]) {
+				const fontData = fontsData[fontKey];
+				preloadData.push({
+					src: fontsGetSrcFromFontData(fontData),
+					type: fontsGetFormatFromFontData(fontData),
+				});
 			}
-		} );
+		});
 
-		worker.postMessage( [ { fonts: preloadData }, fetchUrl ] );
-	} );
+		worker.postMessage([{ fonts: preloadData }, fetchUrl]);
+	});
 }
 "
 `;
 
 exports[`gulp-local-fonts all should create files from Google and from local CSS, while combining them into one CSS 9`] = `
-"addEventListener( 'message', async ( event ) => {
-	const [ preloadData, fetchUrl ] = event.data;
+"addEventListener('message', async (event) => {
+	const [preloadData, fetchUrl] = event.data;
 
-	await fetch( fetchUrl, {
+	await fetch(fetchUrl, {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json;charset=utf-8',
 		},
-		body: JSON.stringify( preloadData ),
-	} );
-} );
+		body: JSON.stringify(preloadData),
+	});
+});
 "
 `;
 
@@ -1533,53 +1533,53 @@ exports[`gulp-local-fonts google should create files from Google Fonts css 3`] =
 "import fontsData from './fonts.js';
 import fontsGetKeyFromFontFace from './fonts-get-key-from-font-face.js';
 
-function addClasses( fontFaces, status ) {
-	fontFaces.forEach( ( fontFace ) => {
-		const fontKey = fontsGetKeyFromFontFace( fontFace );
-		if ( fontsData[ fontKey ] ) {
+function addClasses(fontFaces, status) {
+	fontFaces.forEach((fontFace) => {
+		const fontKey = fontsGetKeyFromFontFace(fontFace);
+		if (fontsData[fontKey]) {
 			document.documentElement.classList.add(
 				'font-' + fontKey + '-' + status
 			);
 		}
-	} );
+	});
 }
 
-document.fonts.ready.then( () => {
+document.fonts.ready.then(() => {
 	const loadedFontFaces = [];
 	const errorFontFaces = [];
 
-	document.fonts.forEach( ( fontFace ) => {
-		if ( 'loaded' === fontFace.status ) {
-			loadedFontFaces.push( fontFace );
-		} else if ( 'error' === fontFace.status ) {
-			errorFontFaces.push( fontFace );
+	document.fonts.forEach((fontFace) => {
+		if ('loaded' === fontFace.status) {
+			loadedFontFaces.push(fontFace);
+		} else if ('error' === fontFace.status) {
+			errorFontFaces.push(fontFace);
 		}
-	} );
+	});
 
-	addClasses( loadedFontFaces, 'done' );
-	addClasses( errorFontFaces, 'error' );
+	addClasses(loadedFontFaces, 'done');
+	addClasses(errorFontFaces, 'error');
 
-	document.fonts.addEventListener( 'loadingdone', ( event ) =>
-		addClasses( event.fontfaces, 'done' )
+	document.fonts.addEventListener('loadingdone', (event) =>
+		addClasses(event.fontfaces, 'done')
 	);
-	document.fonts.addEventListener( 'loadingerror', ( event ) =>
-		addClasses( event.fontfaces, 'error' )
+	document.fonts.addEventListener('loadingerror', (event) =>
+		addClasses(event.fontfaces, 'error')
 	);
-} );
+});
 "
 `;
 
 exports[`gulp-local-fonts google should create files from Google Fonts css 4`] = `
-"export default function fontsGetFormatFromFontData( fontData ) {
-	return fontData[ 1 ].match( /(?<=format\\(['"])[^'"]+(?=['"]\\))/ )[ 0 ];
+"export default function fontsGetFormatFromFontData(fontData) {
+	return fontData[1].match(/(?<=format\\(['"])[^'"]+(?=['"]\\))/)[0];
 }
 "
 `;
 
 exports[`gulp-local-fonts google should create files from Google Fonts css 5`] = `
-"export default function fontsGetKeyFromFontFace( fontFace ) {
+"export default function fontsGetKeyFromFontFace(fontFace) {
 	return (
-		fontFace.family.toLowerCase().replaceAll( ' ', '-' ) +
+		fontFace.family.toLowerCase().replace(/ /g, '-') +
 		'-' +
 		fontFace.weight +
 		'-' +
@@ -1590,8 +1590,8 @@ exports[`gulp-local-fonts google should create files from Google Fonts css 5`] =
 `;
 
 exports[`gulp-local-fonts google should create files from Google Fonts css 6`] = `
-"export default function fontsGetSrcFromFontData( fontData ) {
-	return fontData[ 1 ].match( /(?<=url\\()[^)]+(?=\\))/ )[ 0 ];
+"export default function fontsGetSrcFromFontData(fontData) {
+	return fontData[1].match(/(?<=url\\()[^)]+(?=\\))/)[0];
 }
 "
 `;
@@ -1599,15 +1599,15 @@ exports[`gulp-local-fonts google should create files from Google Fonts css 6`] =
 exports[`gulp-local-fonts google should create files from Google Fonts css 7`] = `
 "import fontsData from './fonts.js';
 
-const __dirname = new URL( '.', import.meta.url ).pathname;
+const __dirname = new URL('.', import.meta.url).pathname;
 
-for ( const fontKey in fontsData ) {
-	const fontData = fontsData[ fontKey ];
+for (const fontKey in fontsData) {
+	const fontData = fontsData[fontKey];
 	document.fonts.add(
 		new FontFace(
-			fontData[ 0 ],
-			fontData[ 1 ].replaceAll( 'url(', 'url(' + __dirname ),
-			fontData[ 2 ]
+			fontData[0],
+			fontData[1].replace(/url\\(/g, 'url(' + __dirname),
+			fontData[2]
 		)
 	);
 }
@@ -1620,51 +1620,51 @@ import fontsGetKeyFromFontFace from './fonts-get-key-from-font-face.js';
 import fontsGetSrcFromFontData from './fonts-get-src-from-font-data.js';
 import fontsGetFormatFromFontData from './fonts-get-format-from-font-data.js';
 
-const __dirname = new URL( '.', import.meta.url ).pathname;
-const fetchUrl = document.querySelector( '[data-fonts-preloader-fetch-url]' )
+const __dirname = new URL('.', import.meta.url).pathname;
+const fetchUrl = document.querySelector('[data-fonts-preloader-fetch-url]')
 	?.dataset?.fontsPreloaderFetchUrl;
 
-if ( fetchUrl ) {
-	const worker = new Worker( __dirname + 'fonts-preloader-worker.js' );
-	document.fonts.ready.then( () => {
+if (fetchUrl) {
+	const worker = new Worker(__dirname + 'fonts-preloader-worker.js');
+	document.fonts.ready.then(() => {
 		const preloadData = [];
 		const loadedFontFaces = [];
 
-		document.fonts.forEach( ( fontFace ) => {
-			if ( 'loaded' === fontFace.status ) {
-				loadedFontFaces.push( fontFace );
+		document.fonts.forEach((fontFace) => {
+			if ('loaded' === fontFace.status) {
+				loadedFontFaces.push(fontFace);
 			}
-		} );
+		});
 
-		loadedFontFaces.forEach( ( fontFace ) => {
-			const fontKey = fontsGetKeyFromFontFace( fontFace );
-			if ( fontsData[ fontKey ] ) {
-				const fontData = fontsData[ fontKey ];
-				preloadData.push( {
-					src: fontsGetSrcFromFontData( fontData ),
-					type: fontsGetFormatFromFontData( fontData ),
-				} );
+		loadedFontFaces.forEach((fontFace) => {
+			const fontKey = fontsGetKeyFromFontFace(fontFace);
+			if (fontsData[fontKey]) {
+				const fontData = fontsData[fontKey];
+				preloadData.push({
+					src: fontsGetSrcFromFontData(fontData),
+					type: fontsGetFormatFromFontData(fontData),
+				});
 			}
-		} );
+		});
 
-		worker.postMessage( [ { fonts: preloadData }, fetchUrl ] );
-	} );
+		worker.postMessage([{ fonts: preloadData }, fetchUrl]);
+	});
 }
 "
 `;
 
 exports[`gulp-local-fonts google should create files from Google Fonts css 9`] = `
-"addEventListener( 'message', async ( event ) => {
-	const [ preloadData, fetchUrl ] = event.data;
+"addEventListener('message', async (event) => {
+	const [preloadData, fetchUrl] = event.data;
 
-	await fetch( fetchUrl, {
+	await fetch(fetchUrl, {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json;charset=utf-8',
 		},
-		body: JSON.stringify( preloadData ),
-	} );
-} );
+		body: JSON.stringify(preloadData),
+	});
+});
 "
 `;
 
@@ -2944,53 +2944,53 @@ exports[`gulp-local-fonts local Should create files from local css 3`] = `
 "import fontsData from './fonts.js';
 import fontsGetKeyFromFontFace from './fonts-get-key-from-font-face.js';
 
-function addClasses( fontFaces, status ) {
-	fontFaces.forEach( ( fontFace ) => {
-		const fontKey = fontsGetKeyFromFontFace( fontFace );
-		if ( fontsData[ fontKey ] ) {
+function addClasses(fontFaces, status) {
+	fontFaces.forEach((fontFace) => {
+		const fontKey = fontsGetKeyFromFontFace(fontFace);
+		if (fontsData[fontKey]) {
 			document.documentElement.classList.add(
 				'font-' + fontKey + '-' + status
 			);
 		}
-	} );
+	});
 }
 
-document.fonts.ready.then( () => {
+document.fonts.ready.then(() => {
 	const loadedFontFaces = [];
 	const errorFontFaces = [];
 
-	document.fonts.forEach( ( fontFace ) => {
-		if ( 'loaded' === fontFace.status ) {
-			loadedFontFaces.push( fontFace );
-		} else if ( 'error' === fontFace.status ) {
-			errorFontFaces.push( fontFace );
+	document.fonts.forEach((fontFace) => {
+		if ('loaded' === fontFace.status) {
+			loadedFontFaces.push(fontFace);
+		} else if ('error' === fontFace.status) {
+			errorFontFaces.push(fontFace);
 		}
-	} );
+	});
 
-	addClasses( loadedFontFaces, 'done' );
-	addClasses( errorFontFaces, 'error' );
+	addClasses(loadedFontFaces, 'done');
+	addClasses(errorFontFaces, 'error');
 
-	document.fonts.addEventListener( 'loadingdone', ( event ) =>
-		addClasses( event.fontfaces, 'done' )
+	document.fonts.addEventListener('loadingdone', (event) =>
+		addClasses(event.fontfaces, 'done')
 	);
-	document.fonts.addEventListener( 'loadingerror', ( event ) =>
-		addClasses( event.fontfaces, 'error' )
+	document.fonts.addEventListener('loadingerror', (event) =>
+		addClasses(event.fontfaces, 'error')
 	);
-} );
+});
 "
 `;
 
 exports[`gulp-local-fonts local Should create files from local css 4`] = `
-"export default function fontsGetFormatFromFontData( fontData ) {
-	return fontData[ 1 ].match( /(?<=format\\(['"])[^'"]+(?=['"]\\))/ )[ 0 ];
+"export default function fontsGetFormatFromFontData(fontData) {
+	return fontData[1].match(/(?<=format\\(['"])[^'"]+(?=['"]\\))/)[0];
 }
 "
 `;
 
 exports[`gulp-local-fonts local Should create files from local css 5`] = `
-"export default function fontsGetKeyFromFontFace( fontFace ) {
+"export default function fontsGetKeyFromFontFace(fontFace) {
 	return (
-		fontFace.family.toLowerCase().replaceAll( ' ', '-' ) +
+		fontFace.family.toLowerCase().replace(/ /g, '-') +
 		'-' +
 		fontFace.weight +
 		'-' +
@@ -3001,8 +3001,8 @@ exports[`gulp-local-fonts local Should create files from local css 5`] = `
 `;
 
 exports[`gulp-local-fonts local Should create files from local css 6`] = `
-"export default function fontsGetSrcFromFontData( fontData ) {
-	return fontData[ 1 ].match( /(?<=url\\()[^)]+(?=\\))/ )[ 0 ];
+"export default function fontsGetSrcFromFontData(fontData) {
+	return fontData[1].match(/(?<=url\\()[^)]+(?=\\))/)[0];
 }
 "
 `;
@@ -3010,15 +3010,15 @@ exports[`gulp-local-fonts local Should create files from local css 6`] = `
 exports[`gulp-local-fonts local Should create files from local css 7`] = `
 "import fontsData from './fonts.js';
 
-const __dirname = new URL( '.', import.meta.url ).pathname;
+const __dirname = new URL('.', import.meta.url).pathname;
 
-for ( const fontKey in fontsData ) {
-	const fontData = fontsData[ fontKey ];
+for (const fontKey in fontsData) {
+	const fontData = fontsData[fontKey];
 	document.fonts.add(
 		new FontFace(
-			fontData[ 0 ],
-			fontData[ 1 ].replaceAll( 'url(', 'url(' + __dirname ),
-			fontData[ 2 ]
+			fontData[0],
+			fontData[1].replace(/url\\(/g, 'url(' + __dirname),
+			fontData[2]
 		)
 	);
 }
@@ -3031,51 +3031,51 @@ import fontsGetKeyFromFontFace from './fonts-get-key-from-font-face.js';
 import fontsGetSrcFromFontData from './fonts-get-src-from-font-data.js';
 import fontsGetFormatFromFontData from './fonts-get-format-from-font-data.js';
 
-const __dirname = new URL( '.', import.meta.url ).pathname;
-const fetchUrl = document.querySelector( '[data-fonts-preloader-fetch-url]' )
+const __dirname = new URL('.', import.meta.url).pathname;
+const fetchUrl = document.querySelector('[data-fonts-preloader-fetch-url]')
 	?.dataset?.fontsPreloaderFetchUrl;
 
-if ( fetchUrl ) {
-	const worker = new Worker( __dirname + 'fonts-preloader-worker.js' );
-	document.fonts.ready.then( () => {
+if (fetchUrl) {
+	const worker = new Worker(__dirname + 'fonts-preloader-worker.js');
+	document.fonts.ready.then(() => {
 		const preloadData = [];
 		const loadedFontFaces = [];
 
-		document.fonts.forEach( ( fontFace ) => {
-			if ( 'loaded' === fontFace.status ) {
-				loadedFontFaces.push( fontFace );
+		document.fonts.forEach((fontFace) => {
+			if ('loaded' === fontFace.status) {
+				loadedFontFaces.push(fontFace);
 			}
-		} );
+		});
 
-		loadedFontFaces.forEach( ( fontFace ) => {
-			const fontKey = fontsGetKeyFromFontFace( fontFace );
-			if ( fontsData[ fontKey ] ) {
-				const fontData = fontsData[ fontKey ];
-				preloadData.push( {
-					src: fontsGetSrcFromFontData( fontData ),
-					type: fontsGetFormatFromFontData( fontData ),
-				} );
+		loadedFontFaces.forEach((fontFace) => {
+			const fontKey = fontsGetKeyFromFontFace(fontFace);
+			if (fontsData[fontKey]) {
+				const fontData = fontsData[fontKey];
+				preloadData.push({
+					src: fontsGetSrcFromFontData(fontData),
+					type: fontsGetFormatFromFontData(fontData),
+				});
 			}
-		} );
+		});
 
-		worker.postMessage( [ { fonts: preloadData }, fetchUrl ] );
-	} );
+		worker.postMessage([{ fonts: preloadData }, fetchUrl]);
+	});
 }
 "
 `;
 
 exports[`gulp-local-fonts local Should create files from local css 9`] = `
-"addEventListener( 'message', async ( event ) => {
-	const [ preloadData, fetchUrl ] = event.data;
+"addEventListener('message', async (event) => {
+	const [preloadData, fetchUrl] = event.data;
 
-	await fetch( fetchUrl, {
+	await fetch(fetchUrl, {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json;charset=utf-8',
 		},
-		body: JSON.stringify( preloadData ),
-	} );
-} );
+		body: JSON.stringify(preloadData),
+	});
+});
 "
 `;
 
