@@ -146,6 +146,7 @@ export default async function init(
 
 				const jsFileNames = [
 					'fonts.js',
+					'fonts-all.js',
 					'fonts-classes.js',
 					'fonts-get-format-from-font-data.js',
 					'fonts-get-key-from-font-face.js',
@@ -162,6 +163,19 @@ export default async function init(
 
 					if ( 'fonts.js' === jsFileName ) {
 						js = js.replace( '{}', JSON.stringify( fontFacesData ) );
+					} else if ( 'fonts-all.js' === jsFileName ) {
+						js = js.replace( '// const fontsData', 'const fontsData = ' + JSON.stringify( fontFacesData ) + ';' );
+						js = js.replace( '// fonts-load.js', readFileSync(
+							join( __dirname, 'js', 'fonts-load.js' )
+						).toString().replace( "import fontsData from './fonts.js';", '' ) );
+						js = js.replace( '// fonts-get-key-from-font-face.js', readFileSync(
+							join( __dirname, 'js', 'fonts-get-key-from-font-face.js' )
+						).toString().replace( 'export default ', '' ) );
+						js = js.replace( '// fonts-classes.js', readFileSync(
+							join( __dirname, 'js', 'fonts-classes.js' )
+						).toString()
+							.replace( "import fontsData from './fonts.js';", '' )
+							.replace( "import fontsGetKeyFromFontFace from './fonts-get-key-from-font-face.js';", '' ) );
 					}
 
 					const jsFile = new Vinyl( {
