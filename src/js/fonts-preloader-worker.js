@@ -1,11 +1,11 @@
-addEventListener( 'message', async ( event ) => {
-	const [ preloadData, fetchUrl ] = event.data;
+addEventListener('message', async (event) => {
+	const [preloadData, fetchUrl] = event.data;
 
-	await fetch( fetchUrl, {
+	await fetch(fetchUrl, {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json;charset=utf-8',
 		},
-		body: JSON.stringify( preloadData ),
-	} );
-} );
+		body: JSON.stringify(preloadData),
+	});
+});

@@ -17,46 +17,46 @@ function getGoogleUrl(
 	const formatFonts = [];
 	const urlData = [];
 
-	fontsData.forEach( ( font ) => {
-		const parts = font.split( ':' );
-		parts[ 0 ] = encodeURIComponent( parts[ 0 ] ).replace( /%20/g, '+' );
-		if ( parts.length === 2 ) {
-			parts[ 1 ] = parts[ 1 ]
-				.split( ',' )
-				.map( ( type ) => encodeURIComponent( type ) )
-				.join( ',' );
-			formatFonts.push( parts.join( ':' ) );
+	fontsData.forEach((font) => {
+		const parts = font.split(':');
+		parts[0] = encodeURIComponent(parts[0]).replace(/%20/g, '+');
+		if (parts.length === 2) {
+			parts[1] = parts[1]
+				.split(',')
+				.map((type) => encodeURIComponent(type))
+				.join(',');
+			formatFonts.push(parts.join(':'));
 		} else {
-			formatFonts.push( parts[ 0 ] );
+			formatFonts.push(parts[0]);
 		}
-	} );
-	urlData.push( 'family=' + formatFonts.join( '|' ) );
+	});
+	urlData.push('family=' + formatFonts.join('|'));
 
-	if ( googleOptions.display ) {
-		urlData.push( 'display=' + encodeURIComponent( googleOptions.display ) );
+	if (googleOptions.display) {
+		urlData.push('display=' + encodeURIComponent(googleOptions.display));
 	}
-	if ( googleOptions.subset ) {
-		urlData.push( 'subset=' + encodeURIComponent( googleOptions.subset ) );
+	if (googleOptions.subset) {
+		urlData.push('subset=' + encodeURIComponent(googleOptions.subset));
 	}
-	if ( googleOptions.effect ) {
-		urlData.push( 'effect=' + encodeURIComponent( googleOptions.effect ) );
+	if (googleOptions.effect) {
+		urlData.push('effect=' + encodeURIComponent(googleOptions.effect));
 	}
-	if ( googleOptions.text ) {
-		urlData.push( 'text=' + encodeURIComponent( googleOptions.text ) );
+	if (googleOptions.text) {
+		urlData.push('text=' + encodeURIComponent(googleOptions.text));
 	}
 
-	return `${ encodeURI( googleOptions.url ) }?${ urlData.join( '&' ) }`;
+	return `${encodeURI(googleOptions.url)}?${urlData.join('&')}`;
 }
 
-async function getGoogleCss( url: string ): Promise<string> {
-	const response = await fetch( url );
+async function getGoogleCss(url: string): Promise<string> {
+	const response = await fetch(url);
 
-	if ( ! response.ok ) {
+	if (!response.ok) {
 		plugin().emit(
 			'error',
 			new PluginError(
 				PLUGIN_NAME,
-				`Unexpected response "${ response.statusText }" for ${ url }`
+				`Unexpected response "${response.statusText}" for ${url}`
 			)
 		);
 	}
@@ -71,13 +71,13 @@ export default async function getGoogle(
 	googleFiles: Vinyl.BufferFile[];
 	googleCss: string;
 }> {
-	const googleOptions = Object.assign( GOOGLE_OPTIONS_DEFAULT, options.google );
-	const url = getGoogleUrl( fontsData, googleOptions );
-	const css = await getGoogleCss( url );
-	const fontUrls = getFontUris( css );
+	const googleOptions = Object.assign(GOOGLE_OPTIONS_DEFAULT, options.google);
+	const url = getGoogleUrl(fontsData, googleOptions);
+	const css = await getGoogleCss(url);
+	const fontUrls = getFontUris(css);
 
 	const { fontFiles, fontPaths, fontFamilyNames, fontFullNames } =
-		await getFontFilesData( fontUrls );
+		await getFontFilesData(fontUrls);
 
 	const googleCss = getCssWithReplacedFontMatches(
 		css,
@@ -89,6 +89,6 @@ export default async function getGoogle(
 
 	return {
 		googleFiles: fontFiles,
-		googleCss: googleCss ? `/*${ url }*/\r\n${ googleCss }` : '',
+		googleCss: googleCss ? `/*${url}*/\r\n${googleCss}` : '',
 	};
 }
