@@ -4,8 +4,11 @@
 		"node": true
 	},
 	"extends": [
-		"plugin:@wordpress/eslint-plugin/recommended"
+		"plugin:@wordpress/eslint-plugin/esnext"
 	],
+	"rules": {
+		"no-unused-vars": "off"
+	},
 	"overrides": [
 		{
 			"files": [

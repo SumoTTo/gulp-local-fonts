@@ -34,7 +34,9 @@
 		"prepublishOnly": "npm run build",
 		"releaseTests": "npm run lint && npm test",
 		"releasePreview": "cross-env HUSKY=0 np --preview --test-script=releaseTests",
-		"release": "cross-env HUSKY=0 np --test-script=releaseTests --no-cleanup"
+		"release": "cross-env HUSKY=0 np --test-script=releaseTests --no-cleanup",
+		"update": "npm update --save",
+		"check-updates": "npm outdated"
 	},
 	"main": "./dist/index.cjs",
 	"module": "./dist/index.mjs",
@@ -55,7 +57,7 @@
 	"dependencies": {
 		"find-cache-dir": "^3.3.2",
 		"fontkit": "^2.0.2",
-		"node-fetch": "^2.6.9",
+		"node-fetch": "^2.7.0",
 		"object-hash": "^3.0.0",
 		"plugin-error": "^2.0.1",
 		"through2": "^4.0.2",
@@ -65,24 +67,27 @@
 		"gulp": "^4.0.0"
 	},
 	"devDependencies": {
-		"@types/find-cache-dir": "^3.2.1",
-		"@types/object-hash": "^3.0.2",
-		"@types/responselike": "^1.0.0",
-		"@types/through2": "^2.0.38",
-		"@types/vinyl": "^2.0.7",
-		"@wordpress/eslint-plugin": "^14.3.0",
+		"@types/fontkit": "^2.0.7",
+		"@types/node-fetch": "^2.6.11",
+		"@types/object-hash": "^3.0.6",
+		"@types/responselike": "^1.0.3",
+		"@types/through2": "^2.0.41",
+		"@types/vinyl": "^2.0.12",
+		"@wordpress/eslint-plugin": "^19.0.0",
 		"cross-env": "^7.0.3",
 		"csso": "^5.0.5",
-		"eslint": "8.38.0",
-		"fs-extra": "^11.1.1",
-		"gulp": "^4.0.2",
-		"husky": "^8.0.3",
-		"jest": "^29.5.0",
-		"np": "^7.7.0",
+		"eslint": "8.57.0",
+		"fs-extra": "^11.2.0",
+		"gulp": "^5.0.0",
+		"husky": "^9.0.11",
+		"jest": "^29.7.0",
+		"np": "^10.0.5",
+		"prettier": "^3.3.2",
 		"responselike": "^3.0.0",
-		"terser": "^5.16.8",
-		"typescript": "^5.0.4",
-		"unbuild": "^1.2.0"
+		"terser": "^5.31.1",
+		"typescript": "^5.4.5",
+		"unbuild": "^2.0.0"
 	},
-	"type": "module"
+	"type": "module",
+	"prettier": "@wordpress/prettier-config"
 }

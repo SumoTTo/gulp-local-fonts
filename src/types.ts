@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import { type RequestInit } from 'node-fetch';
 
 export declare type Options = {

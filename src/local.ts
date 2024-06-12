@@ -15,36 +15,36 @@ async function getLocalCss(
 	basePath: string
 ): Promise<string> {
 	return paths
-		.map((path) => {
-			const absoluteCssPath = resolve(basePath, path);
+		.map( ( path ) => {
+			const absoluteCssPath = resolve( basePath, path );
 
-			if (!existsSync(absoluteCssPath)) {
+			if ( ! existsSync( absoluteCssPath ) ) {
 				plugin().emit(
 					'error',
-					new PluginError(PLUGIN_NAME, 'Local font css not found!')
+					new PluginError( PLUGIN_NAME, 'Local font css not found!' )
 				);
 
 				return '';
 			}
 
-			let css = readFileSync(absoluteCssPath, 'utf-8');
+			let css = readFileSync( absoluteCssPath, 'utf-8' );
 			const fontMatchesAll = css.matchAll(
 				/url\((?<quote>['"]?)(?<uri>[^)"':]+?)(\??#[^)"']+)?\k<quote>\)/g
 			);
 
-			Array.from(fontMatchesAll, (m) => m.groups.uri).forEach(
-				(relativeFontPath) => {
+			Array.from( fontMatchesAll, ( m ) => m.groups.uri ).forEach(
+				( relativeFontPath ) => {
 					const absoluteFontPath = resolve(
-						dirname(absoluteCssPath),
+						dirname( absoluteCssPath ),
 						relativeFontPath
-					).replace(/\\/g, '/');
-					css = css.replace(relativeFontPath, absoluteFontPath);
+					).replace( /\\/g, '/' );
+					css = css.replace( relativeFontPath, absoluteFontPath );
 				}
 			);
 
 			return css;
-		})
-		.join('\r\n');
+		} )
+		.join( '\r\n' );
 }
 
 export default async function getLocal(
@@ -54,10 +54,11 @@ export default async function getLocal(
 	localFiles: Vinyl.BufferFile[];
 	localCss: string;
 }> {
-	const css = await getLocalCss(fontsData, basePath);
-	const fontUrls = getFontUris(css);
+	const css = await getLocalCss( fontsData, basePath );
+
+	const fontUrls = getFontUris( css );
 	const { fontFiles, fontPaths, fontFamilyNames, fontFullNames } =
-		await getFontFilesData(fontUrls);
+		await getFontFilesData( fontUrls );
 
 	return {
 		localFiles: fontFiles,
